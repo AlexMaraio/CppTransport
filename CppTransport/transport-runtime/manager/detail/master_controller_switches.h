@@ -132,7 +132,9 @@ namespace transport
           (CPPTRANSPORT_SWITCH_CACHE_CAPACITY, boost::program_options::value<long int>(), CPPTRANSPORT_HELP_CACHE_CAPACITY)
           (CPPTRANSPORT_SWITCH_NETWORK_MODE, CPPTRANSPORT_HELP_NETWORK_MODE)
           (CPPTRANSPORT_SWITCH_REJECT_FAILED, CPPTRANSPORT_HELP_REJECT_FAILED)
+          (CPPTRANSPORT_SWITCH_BETA_REVERSE_MODE, CPPTRANSPORT_HELP_BETA_REVERSE_MODE)
           ;
+          //! Added the last line to add the new beta-sort functionality to the help information.
         
         boost::program_options::options_description plotting("Plot styling", width);
         plotting.add_options()
@@ -431,6 +433,19 @@ namespace transport
         
         if(option_map.count(CPPTRANSPORT_SWITCH_NETWORK_MODE)) this->arg_cache.set_network_mode(true);
         if(option_map.count(CPPTRANSPORT_SWITCH_REJECT_FAILED)) this->arg_cache.set_commit_failed(false);
+        
+        //! Now adding the code necessary once the reverse-beta option has been set from the command line to trigger the bool
+        //! to actually reverse sort them
+        if(option_map.count(CPPTRANSPORT_SWITCH_BETA_REVERSE_MODE)) this->arg_cache.set_reverse_beta_mode(true);
+        if(option_map.count(CPPTRANSPORT_SWITCH_BETA_REVERSE_MODE)){
+          CPPTRANSPORT_SWITCH_BETA_REVERSE_MODE2 = true;
+        }
+        else{
+          CPPTRANSPORT_SWITCH_BETA_REVERSE_MODE2 = false;
+        }
+        //TODO: this is a bit  of a bootleg hack as there should be a more elegent way of doing this than just setting 
+        // a global bool by using the argument cache, however it works anyway *shrugs*
+                
         
         // process global capacity specification, if provided
         if(option_map.count(CPPTRANSPORT_SWITCH_CAPACITY))

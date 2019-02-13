@@ -36,7 +36,6 @@
 #include <random>
 
 #include "transport-runtime/manager/mpi_operations.h"
-
 #include "transport-runtime/repository/writers/generic_writer.h"
 
 #include "transport-runtime/reporting/key_value.h"
@@ -669,15 +668,52 @@ namespace transport
         // (note duplicate removal using unique() requires a sorted list)
         this->queue.sort();
         this->queue.unique();
+        
+        
+        //! If statment to determine if we want to sort by inverse beta, or randomise the kserials, which is the old way
+        if (CPPTRANSPORT_SWITCH_BETA_REVERSE_MODE2)
+		{
+			//? We are now in the branch where we are sorting via inverse betas
 
-        // shuffle items; work items with nearby serial numbers typically have similar properties and therefore similar
-        // integration times. That can bias the average time-per-item low or high at the beginnng of the integration,
-        // making the remaining-time estimate unreliable
-        // shuffling attempt to alleviate that problem a bit
-        std::vector<unsigned int> temp(this->queue.size());
-        std::copy(this->queue.begin(), this->queue.end(), temp.begin());
-        std::shuffle(temp.begin(), temp.end(), this->urng);
-        std::copy(temp.begin(), temp.end(), this->queue.begin());
+			std::vector<unsigned int> temp(this->queue.size());
+			std::copy(this->queue.begin(), this->queue.end(), temp.begin());
+			// Copies the existing queue		
+
+			std::vector<double>  BetaList;
+			// Creates a new vector that the beta values will be stored in
+
+			for(typename Database::const_config_iterator t = db.config_begin(); t != db.config_end(); ++t)
+		      {
+		      	BetaList.push_back(t->get_beta());
+		      }
+			//! itterates through the kserials and then gets their respective beta value
+
+			std::vector<std::vector<double>> BetaSerials; // Initalises the vector of a vector to associate a kserial with a beta
+			for( long unsigned int iter=0; iter<BetaList.size(); ++iter){
+				BetaSerials.push_back({BetaList[iter],static_cast<double>(temp[iter])});
+			} //This is what creates the vector with the beta values and their associated k-serials
+
+			std::sort(BetaSerials.begin(),BetaSerials.end());
+			std::reverse(BetaSerials.begin(),BetaSerials.end());
+			// Sorts and then reverse the list, so that way the largest beta is at the front, and smallest is at the back.
+
+			BetaList.clear(); // clears the beta list, so that way we can now populate with the decreasing values
+
+			for( long unsigned int iter=0; iter<BetaSerials.size(); ++iter){
+				BetaList.push_back(static_cast<int>(BetaSerials[iter][1]));
+			}
+			// We now have the inverse sorted beta values, which can then be copied over to the worker queue to be executed by the nodes
+			std::copy(BetaReversed.begin(), BetaReversed.end(), this->queue.begin());
+	
+			} // End of if
+			
+		else{
+			//? We are now in the ordinary branch, so randomly sorting as usual - the old way of doing it so the old code is perfectly fine
+			std::vector<unsigned int> temp(this->queue.size());
+        	std::copy(this->queue.begin(), this->queue.end(), temp.begin());
+			std::shuffle(temp.begin(), temp.end(), this->urng);
+			std::copy(temp.begin(), temp.end(), this->queue.begin());
+		}
       }
 
 

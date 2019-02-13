@@ -101,6 +101,10 @@ namespace transport
         //! used to identify this k-configuration in the database
         unsigned int serial;
         unsigned int get_serial() const { return(this->serial); }
+        
+        //! Used to order the two-pf intergations, since the two-pf dunctions do not have a beta value, we have to return
+        //! something, so the kserial will be used. 
+        double get_beta() const {return (this->serial);}
 
         //! comoving-normalized k-value (normalized so that k = aH at horizon exit)
         double k_comoving;
@@ -181,9 +185,14 @@ namespace transport
         double kt_conventional;
         double alpha;
         double beta;
+        
+        //! To then sort by the largest beta value to the smallest value in the worker scheduler, we need to give
+        //! it a way to pass the beta values, so this added function here
+        double get_beta() const { return(this->beta); }
+        
 
-		    //! horizon-exit time for k_t/3.0
-		    double t_exit;
+		//! horizon-exit time for k_t/3.0
+		double t_exit;
 
         //! time where massless approximation is marginal, ie k/a = M^2 where M^2 is largest eigenvalue of mass matrix
         double t_massless;

@@ -119,6 +119,12 @@ namespace transport
         
         //! Set commit-failed mode
         void set_commit_failed(bool c)                            { this->commit_failed = c; }
+        
+        
+        //! Added to enable the reverse-beta fnctionality from the command line
+        bool get_reverse_beta_mode() const                        { return(this->reverse_beta_mode); }
+
+        void set_reverse_beta_mode(bool rev)                      { this->reverse_beta_mode = rev; }
 
 
         // REPOSITORY OPTIONS
@@ -362,6 +368,9 @@ namespace transport
         
         //! send emails at periodic task events?
         bool mail_periodic;
+	
+		//! Reverse-beta functionality
+		bool reverse_beta_mode;
 
 
         // enable boost::serialization support, and hence automated packing for transmission over MPI
@@ -395,6 +404,7 @@ namespace transport
             ar & mail_begin;
             ar & mail_end;
             ar & mail_periodic;
+            ar & reverse_beta_mode;
           }
 
 	    };
@@ -422,7 +432,8 @@ namespace transport
         report_time_delay(CPPTRANSPORT_DEFAULT_REPORT_TIME_DELAY),
         mail_begin(true),
         mail_end(true),
-        mail_periodic(true)
+        mail_periodic(true),
+        reverse_beta_mode(false)
 	    {
 	    }
 

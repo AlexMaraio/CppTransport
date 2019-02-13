@@ -172,5 +172,11 @@
 #define CPPTRANSPORT_SWITCH_REPORT_WHEN_LONG  "report-when"
 #define CPPTRANSPORT_HELP_REPORT_WHEN         "specify at which times reports should be issued to email (default bpe)"
 
+//! Added for the reverse beta functionality, so that way it appears in the help text.
+#define CPPTRANSPORT_SWITCH_BETA_REVERSE_MODE  "reverse-beta-sort"
+#define CPPTRANSPORT_HELP_BETA_REVERSE_MODE    "adds to option to sort the k-serial list by their inverse beta value (and so, inverse integration times). Makes the intergrations more time efficient especially for longer models, but makes the estimated time remaining mostly useless"
+
+bool CPPTRANSPORT_SWITCH_BETA_REVERSE_MODE2; //! This is the bootled bool used, should be changed in the future if possible.
+ 
 
 #endif //CPPTRANSPORT_COMMAND_LINE_H
