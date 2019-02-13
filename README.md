@@ -1,5 +1,15 @@
 [![Build Status: experimental](https://travis-ci.org/ds283/CppTransport.svg?branch=experimental)](https://travis-ci.org/ds283/CppTransport)
 
+# 201901 Branch
+
+The 201901 branch is a custom branch of **CppTransport** that added the functionality to enable the option for the worker scheduler to sort for reverse beta values, that is lager beta values first. Since the intergation times are heavily dependant on the beta parameter, where the closer beta gets to one the longer the intergation time, sorting by largest betas means we can enable the work sheduler to be more efficeint. 
+
+This is because it can be seen that for certian models that have a very large integration time range, such as from 1 min to upwards of 5 hours depending on the hardware, that if these longer intergations get assigned late in the run, then many cores can finsih their workload while one or two workers are still integrating these long triangles. This makes the whole thing take longer and is less resource efficient. This problem also scales with the core count, so high core runs ( >= 8 cores) exacerbate the problem.
+
+This can then be overcome by making the worker scheduler sort the work queue by the beta values, effectively getting these long integrations out of the way first. On trial runs, it can be seen that the benefit from this ranges from zero to 12 hours depending on the model and hardware, of course. However, one downside of this approach is that the reported time to completion from the runtime is woefully wrong as it doesn't (yet) realise that as the intergations progess, the time per integration decreases rapidly.  
+
+To enable the new option, simply add the command line option `--reverse-beta-sort` when running any tasks.
+
 # Overview
 
 **CppTransport** is an automated platform that can be used to solve for the 2- and 3-point functions of the perturbations produced during an inflationary epoch in the very early universe. The present version can accommodate models with an arbitrary  field-space metric and arbitrary potential, including models with canonical kinetic terms as a special case. It does not yet support more general models where the Lagrangian is an arbitrary function of the kinetic energies and field values. For example, the well-studied Dirac-Born-Infeld model is of this type.
