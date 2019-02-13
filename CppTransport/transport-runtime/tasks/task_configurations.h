@@ -192,7 +192,7 @@ namespace transport
         
 
 		//! horizon-exit time for k_t/3.0
-		double t_exit;
+		double t_exit; 
 
         //! time where massless approximation is marginal, ie k/a = M^2 where M^2 is largest eigenvalue of mass matrix
         double t_massless;

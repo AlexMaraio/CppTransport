@@ -370,7 +370,7 @@ namespace transport
         bool mail_periodic;
 	
 		//! Reverse-beta functionality
-		bool reverse_beta_mode;
+		bool reverse_beta_mode; 
 
 
         // enable boost::serialization support, and hence automated packing for transmission over MPI
