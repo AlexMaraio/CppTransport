@@ -703,7 +703,7 @@ namespace transport
 	            BetaList.push_back(static_cast<int>(BetaSerials[iter][1]));
             }
             // We now have the inverse sorted beta values, which can then be copied over to the worker queue to be executed by the nodes
-            std::copy(BetaReversed.begin(), BetaReversed.end(), this->queue.begin());
+            std::copy(BetaList.begin(), BetaList.end(), this->queue.begin());
 
             } // End of if
 			
