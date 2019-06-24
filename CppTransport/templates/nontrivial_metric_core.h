@@ -1805,8 +1805,6 @@ namespace transport
                 $IF{dbrane}
                   // Here, we want to execute the code that works for the dbrane model, with our custom end of inflation searcher
                   if (__x.first[0] <= __params[0]) {
-                    std::cout << __x.first[0] << std::endl;
-                    std::cout << __params[0] << std::endl;
                     return true;
                   }
                   else {
