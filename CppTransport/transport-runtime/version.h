@@ -33,10 +33,10 @@ namespace transport
 
     constexpr auto         CPPTRANSPORT_BUILT_USING         = "built using CppTransport";
     constexpr auto         CPPTRANSPORT_NAME                = "CppTransport";
-    constexpr auto         CPPTRANSPORT_VERSION             = "2019.1 beta";
-    constexpr auto         CPPTRANSPORT_COPYRIGHT           = "(c) University of Sussex 2016-2011";
+    constexpr auto         CPPTRANSPORT_VERSION             = "2019.1 dbrane beta";
+    constexpr auto         CPPTRANSPORT_COPYRIGHT           = "(c) University of Sussex 2016-2019";
     
-    constexpr auto         CPPTRANSPORT_RUNTIME_API         = "runtime version 2019.1 beta";
+    constexpr auto         CPPTRANSPORT_RUNTIME_API         = "runtime version 2019.1 dbrane beta";
     constexpr unsigned int CPPTRANSPORT_RUNTIME_API_VERSION = 201901;
     
   }   // namespace transport

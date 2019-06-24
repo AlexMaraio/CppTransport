@@ -122,6 +122,9 @@ class translator_data
     //! get fast option
     bool fast() const;
 
+    //! get dbrane option. New in 2019-dbrane branch
+    bool dbrane() const;
+
     
     // PASS-THROUGH TO UNDERLYING MODEL DESCRIPTOR
     

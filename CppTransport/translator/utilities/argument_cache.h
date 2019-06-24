@@ -100,6 +100,7 @@ class argument_cache
 
     bool fast() const { return(this->fast_flag); }
 
+    bool dbrane() const { return(this->dbrane_flag); }
 
     // WARNINGS
 
@@ -178,6 +179,8 @@ class argument_cache
     //! fast setting
     bool fast_flag;
 
+    //! dbrane setting
+    bool dbrane_flag;
 
     // WARNINGS
 

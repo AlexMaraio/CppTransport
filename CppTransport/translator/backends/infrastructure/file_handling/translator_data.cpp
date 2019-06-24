@@ -71,6 +71,11 @@ bool translator_data::fast() const
     return(this->cache.fast());
   }
 
+bool translator_data::dbrane() const
+  {
+    return(this->cache.dbrane());
+  }
+
 
 void translator_data::set_core_implementation(const boost::filesystem::path& co, const std::string& cg,
                                               const boost::filesystem::path& io, const std::string& ig)

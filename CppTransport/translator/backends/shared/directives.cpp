@@ -149,6 +149,11 @@ namespace macro_packages
         if(condition == std::string("fast") && this->payload.fast()) truth = true;
         else if(condition == std::string("!fast") && !this->payload.fast()) truth = true;
 
+        //! We need to add another condition here that can evaluate the IF{dbrane} condition that has
+        //! been implemented in the 2019-dbrane branch.
+        if(condition == std::string("dbrane") && this->payload.dbrane()) truth = true;
+        else if(condition == std::string("!dbrane") && !this->payload.dbrane()) truth = true;
+
         // push a new clause onto the "if" stack, with the determined truth value
         this->istack.emplace(condition, truth);
 

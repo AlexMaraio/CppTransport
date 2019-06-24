@@ -82,6 +82,9 @@
 #define PROFILING_SWITCH              "profile"
 #define PROFILING_HELP                "display profiling information"
 
+#define DBRANE_SWITCH                 "dbrane"
+#define DBRANE_HELP                   "Enables the option to end inflation for a value of the r field. Used in the DBrane model. Works by comparing the zeroth field-value to the zeroth parameter at every point when finding the end of inflation, so set-up fields & parameters accordingly in model file."
+
 // WARNINGS
 
 #define DEVELOP_WARNINGS              "Wdevelop"

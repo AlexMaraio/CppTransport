@@ -1802,7 +1802,26 @@ namespace transport
 
                 const auto __eps = $EPSILON;
 
-                return (__eps >= 1.0 || __eps < 0.0);
+                $IF{dbrane}
+                  // Here, we want to execute the code that works for the dbrane model, with our custom end of inflation searcher
+                  if (__x.first[0] <= __params[0]) {
+                    std::cout << __x.first[0] << std::endl;
+                    std::cout << __params[0] << std::endl;
+                    return true;
+                  }
+                  else {
+                    return (__eps >= 1.0 || __eps < 0.0);
+                  }
+                  //? This code works by using the zeroth field and compares it to the zeroth parameter of the model at every
+                  //? evaluation point of the end-of-inflation searcher. 
+
+                $ELSE
+                  // Now we're not in the dbrane model, and so we will simply use the normal evaluation point for 
+                  // finding the end of inflation
+                  return (__eps >= 1.0 || __eps < 0.0);
+                
+                $ENDIF
+
               }
 
           private:
