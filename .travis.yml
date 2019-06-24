@@ -1,5 +1,5 @@
 sudo: required
-language: generic
+language: cpp
 
 before_script:
   - cd CppTransport
