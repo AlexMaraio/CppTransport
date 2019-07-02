@@ -115,6 +115,12 @@ class lagrangian_block
     
     //! get field-space metric as contexted value
     boost::optional< contexted_value< std::shared_ptr<field_metric> > > get_metric() const;
+
+    //! set field-space metric
+    bool set_endofinflation(const y::lexeme_type& l, std::shared_ptr<endofinflation> f);
+
+    //! get field-space metric as contexted value
+    boost::optional< contexted_value< std::shared_ptr<field_metric> > > get_metric() const;
     
     
     // FIELDS AND PARAMETERS

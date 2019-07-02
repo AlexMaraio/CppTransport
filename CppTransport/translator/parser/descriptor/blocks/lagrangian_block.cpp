@@ -180,6 +180,31 @@ boost::optional< contexted_value< std::shared_ptr<field_metric> > > lagrangian_b
     if(this->metric) return *this->metric; else return boost::none;
   }
 
+bool lagrangian_block::set_endofinflation(const y::lexeme_type& l, std::shared_ptr<endofinflaiton> f)
+{
+  if(!this->type || this->type->get() != model_type::nontrivial_metric)
+  {
+    l.error(ERROR_METRIC_REQUIRES_NONTRIVIAL);
+
+    if(this->type)
+    {
+      this->type->get_declaration_point().error(ERROR_METRIC_SETTING_WAS);
+    }
+
+    throw parse_error(ERROR_METRIC_REQUIRES_NONTRIVIAL);
+  }
+
+  // symbol tables should be frozen whenever we start to specify the model
+  this->freeze_tables(l);
+
+  return SetContextedValue(this->metric, f, l, ERROR_METRIC_REDECLARATION);
+}
+
+
+boost::optional< contexted_value< std::shared_ptr<field_metric> > > lagrangian_block::get_metric() const
+{
+  if(this->metric) return *this->metric; else return boost::none;
+}
 
 // FIELDS AND PARAMETERS
 

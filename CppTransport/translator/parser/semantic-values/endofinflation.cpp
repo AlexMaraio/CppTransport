@@ -1,7 +1,7 @@
 //
-// Created by David Seery on 21/06/2013.
+// Created by David Seery on 30/05/2017.
 // --@@
-// Copyright (c) 2016 University of Sussex. All rights reserved.
+// Copyright (c) 2017 University of Sussex. All rights reserved.
 //
 // This file is part of the CppTransport platform.
 //
@@ -24,18 +24,9 @@
 //
 
 
-
-#ifndef CPPTRANSPORT_SEMANTIC_DATA_H
-#define CPPTRANSPORT_SEMANTIC_DATA_H
-
-
-#include "attributes.h"
-#include "author.h"
-#include "stepper.h"
-#include "string_array.h"
-#include "subexpr.h"
-#include "metric.h"
 #include "endofinflation.h"
 
-
-#endif //CPPTRANSPORT_SEMANTIC_DATA_H
+bool endofinflation::set_endofinflation(const std::string& n, const y::lexeme_type& l)
+  {
+    return SetContextedValue(this->endofinflation_conditions, n, l, ERROR_EOI_REDECLARATION);
+  }
