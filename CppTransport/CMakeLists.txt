@@ -135,7 +135,6 @@ ADD_EXECUTABLE(CppTransport
   translator/parser/semantic-values/attributes.cpp
   translator/parser/semantic-values/author.cpp
   translator/parser/semantic-values/metric.cpp
-  translator/parser/semantic-values/endofinflation.cpp
   translator/parser/semantic-values/stepper.cpp
   translator/parser/semantic-values/string_array.cpp
   translator/parser/semantic-values/subexpr.cpp

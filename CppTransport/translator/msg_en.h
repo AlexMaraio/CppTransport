@@ -147,7 +147,6 @@ constexpr auto ERROR_METRIC_SETTING_WAS              = "Lagrangian type was set 
 constexpr auto ERROR_LAGRANGIAN_TYPE_REDECLARATION   = "Redeclaration of Lagrangian type";
 constexpr auto ERROR_POTENTIAL_REDECLARATION         = "Redeclaration of potential";
 constexpr auto ERROR_METRIC_REDECLARATION            = "Redeclaration of field-space metric";
-constexpr auto ERROR_EOI_REDECLARATION               = "Redeclaration of the end-of-inflation condition";
 
 constexpr auto ERROR_REQUIRED_VERSION_REDECLARATION  = "Redeclaration of minimum required version";
 

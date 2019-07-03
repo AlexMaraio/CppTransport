@@ -184,17 +184,6 @@ namespace y
             this->root.report_error();
           }
       }
-    void lagrangian_driver::set_endofinflation(lexeme_type& lex, std::shared_ptr<endofinflation> f)
-    {
-      try
-      {
-        this->root.model.set_endofinflation(lex, f);
-      }
-      catch(parse_error& xe)
-      {
-        this->root.report_error();
-      }
-    }
     
     
     void lagrangian_driver::set_lagrangian_type(model_type t, lexeme_type& lex)

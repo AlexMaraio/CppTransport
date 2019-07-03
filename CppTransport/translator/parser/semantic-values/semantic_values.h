@@ -35,7 +35,6 @@
 #include "string_array.h"
 #include "subexpr.h"
 #include "metric.h"
-#include "endofinflation.h"
 
 
 #endif //CPPTRANSPORT_SEMANTIC_DATA_H

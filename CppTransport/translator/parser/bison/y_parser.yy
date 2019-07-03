@@ -78,7 +78,6 @@
 %token                                      field
 %token                                      potential
 %token                                      metric
-%token                                      endofinflation
 %token                                      subexpr
 %token                                      value
 %token                                      parameter
@@ -176,9 +175,6 @@
 %type  <std::shared_ptr<field_metric>>      metric_def
 %type  <std::shared_ptr<field_metric>>      metric_literal
 %type  <std::shared_ptr<field_metric_base>> metric_element_list
-%type  <std::shared_ptr<endofinflation>>    endofinflation_def
-%type  <std::shared_ptr<endofinflation>>    endofinflation_literal
-%type  <std::shared_ptr<endofinflation>>    endofinflation_list
 %type  <std::shared_ptr<GiNaC::ex>>         expression
 %type  <std::shared_ptr<GiNaC::ex>>         leaf
 %type  <std::shared_ptr<GiNaC::ex>>         built_in_function
@@ -200,7 +196,6 @@ script: script metadata metadata_block semicolon
         | script subexpr identifier subexpr_block semicolon                             { driver.model.add_subexpr(*$3, $4); }
         | script potential equals expression semicolon                                  { driver.model.set_potential(*$3, $4); }
         | script metric equals metric_def semicolon                                     { driver.model.set_metric(*$3, $4); }
-        | script endofinflation equals endofinflation_def semicolon                     { driver.model.set_endofinflation(*$3, $4); }
         | script model string model_block semicolon                                     { driver.templates.set_model(*$3); }
         | script background stepper_block semicolon                                     { driver.templates.set_background_stepper(*$2, $3); }
         | script perturbations stepper_block semicolon                                  { driver.templates.set_perturbations_stepper(*$2, $3); }
@@ -218,18 +213,6 @@ metric_def: metric_literal                                                      
         | metric_def foreslash expression                                               { $1->multiply(GiNaC::ex(1) / *$3); $$ = $1; }
         | unary_minus metric_def                                                        { $2->multiply(GiNaC::ex(-1)); $$ = $2; }
         | open_bracket metric_def close_bracket                                         { $$ = $2; }
-        ;
-
-metric_literal: open_square metric_element_list close_square                            { $$ = $2; }
-        ;
-
-metric_element_list: metric_element_list identifier comma identifier equals expression semicolon
-                                                                                        { driver.model.add_metric_component(*$1, *$2, *$4, *$6, *$5); $$ = $1; }
-        |                                                                               { $$ = driver.model.make_field_metric_base(); }
-        ;
-
-endofinflation_def: endofinflation_literal                                              { $$ = $1; }
-        | open_bracket endofinflation_def close_bracket                                 { $$ = $2; }
         ;
 
 metric_literal: open_square metric_element_list close_square                            { $$ = $2; }
