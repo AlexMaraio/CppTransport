@@ -63,7 +63,7 @@ namespace transport
         else if((tkb = dynamic_cast< threepf_task<number>* >(tk)) != nullptr)
           {
             this->work_scheduler.set_state_size(m->backend_threepf_state_size());
-            this->work_scheduler.prepare_queue(*tkb);
+            this->work_scheduler.prepare_queue(*tkb, this->arg_cache.get_new_scheduler());
             this->schedule_integration(rec, tkb, seeded, seed_group, tags, slave_work_event::event_type::begin_threepf_assignment, slave_work_event::event_type::end_threepf_assignment);
           }
         else
@@ -82,7 +82,7 @@ namespace transport
                                                          slave_work_event::event_type begin_label, slave_work_event::event_type end_label)
       {
         // check whether this task has a default checkpoint interval
-        // if so, instruct workers to change their interval unless we have been overriden by the command line
+        // if so, instruct workers to change their interval unless we have been overridden by the command line
         Checkpoint_Context<number> checkpoint_context(*this);
         if(tk->has_default_checkpoint() && this->arg_cache.get_checkpoint_interval() == 0)
           {

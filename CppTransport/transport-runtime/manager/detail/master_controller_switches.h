@@ -20,6 +20,7 @@
 //
 // @license: GPL-2
 // @contributor: David Seery <D.Seery@sussex.ac.uk>
+// @contributor: Alessandro Maraio <am963@sussex.ac.uk>
 // --@@
 //
 
@@ -132,9 +133,9 @@ namespace transport
           (CPPTRANSPORT_SWITCH_CACHE_CAPACITY, boost::program_options::value<long int>(), CPPTRANSPORT_HELP_CACHE_CAPACITY)
           (CPPTRANSPORT_SWITCH_NETWORK_MODE, CPPTRANSPORT_HELP_NETWORK_MODE)
           (CPPTRANSPORT_SWITCH_REJECT_FAILED, CPPTRANSPORT_HELP_REJECT_FAILED)
-          (CPPTRANSPORT_SWITCH_BETA_REVERSE_MODE, CPPTRANSPORT_HELP_BETA_REVERSE_MODE)
+          (CPPTRANSPORT_SWITCH_NEW_TASK_SCHEDULER, CPPTRANSPORT_HELP_NEW_TASK_SCHEDULER)
           ;
-          //! Added the last line to add the new beta-sort functionality to the help information.
+          //! Added the last line to add the new task-scheduler functionality to the help information.
         
         boost::program_options::options_description plotting("Plot styling", width);
         plotting.add_options()
@@ -436,15 +437,7 @@ namespace transport
         
         //! Now adding the code necessary once the reverse-beta option has been set from the command line to trigger the bool
         //! to actually reverse sort them
-        if(option_map.count(CPPTRANSPORT_SWITCH_BETA_REVERSE_MODE)) this->arg_cache.set_reverse_beta_mode(true);
-        if(option_map.count(CPPTRANSPORT_SWITCH_BETA_REVERSE_MODE)){
-          CPPTRANSPORT_SWITCH_BETA_REVERSE_MODE2 = true;
-        }
-        else{
-          CPPTRANSPORT_SWITCH_BETA_REVERSE_MODE2 = false;
-        }
-        //TODO: this is a bit  of a bootleg hack as there should be a more elegent way of doing this than just setting 
-        // a global bool by using the argument cache, however it works anyway *shrugs*
+        if(option_map.count(CPPTRANSPORT_SWITCH_NEW_TASK_SCHEDULER)) this->arg_cache.set_new_scheduler(true);
                 
         
         // process global capacity specification, if provided

@@ -20,6 +20,7 @@
 //
 // @license: GPL-2
 // @contributor: David Seery <D.Seery@sussex.ac.uk>
+// @contributor: Alessandro Maraio <am963@sussex.ac.uk>
 // --@@
 //
 
@@ -246,7 +247,7 @@ namespace transport
 		    //! construct a scheduler object
 		    worker_scheduler(unsigned int nw)
 		      : number_workers(nw),
-            waiting_for_setup(0),
+		        waiting_for_setup(0),
 		        state_size(0),
 		        unassigned(0),
 		        active(0),
@@ -257,22 +258,22 @@ namespace transport
 		        total_aggregation_time(0),
 		        number_aggregations(0),
 		        total_work_time(0),
-            estimated_completion(boost::posix_time::not_a_date_time),
-            estimated_cpu_time(0),
+		        estimated_completion(boost::posix_time::not_a_date_time),
+		        estimated_cpu_time(0),
 		        work_items_completed(0),
 		        work_items_in_flight(0),
-            finished(false)
-			    {
-            // set up the random number generator
-            urng.seed(rng());
-			    }
+		        finished(false)
+		        {
+		          // set up the random number generator
+              urng.seed(rng());
+		        }
 
 		    ~worker_scheduler() = default;
 
 
 		    // INTERFACE -- GENERAL FUNCTIONS
 
-      public:
+	    public:
 
 		    //! reset scheduler and all scheduling data; prepare for new scheduling
 		    //! task with the given number of workers
@@ -292,15 +293,15 @@ namespace transport
 
 		    // INTERFACE -- MANAGE WORK QUEUE
 
-      public:
+	    public:
 
-				//! build a work queue for twopf task
-		    template <typename number>
-		    void prepare_queue(twopf_task<number>& task);
+        //! build a work queue for twopf task
+        template <typename number>
+        void prepare_queue(twopf_task<number>& task);
 
-		    //! build a work queue for a threepf task
-		    template <typename number>
-		    void prepare_queue(threepf_task<number>& task);
+        //! build a work queue for a threepf task
+        template <typename number>
+        void prepare_queue(threepf_task<number>& task, bool new_beta_sort = false);
 
         //! build a work queue for zeta twopf task
         template <typename number>
@@ -310,18 +311,18 @@ namespace transport
         template <typename number>
         void prepare_queue(zeta_threepf_task<number>& task);
 
-		    //! build a work queue for an output task
-		    template <typename number>
-		    void prepare_queue(output_task<number>& task);
+        //! build a work queue for an output task
+        template <typename number>
+        void prepare_queue(output_task<number>& task);
 
         //! build a work queue using specified serial numbers (used when seeding tasks)
         void prepare_queue(const std::set<unsigned int>& list);
 
-		    //! current queue exhausted? ie., finished all current work?
-		    bool is_finished() const { return this->queue.empty(); }
+        //! current queue exhausted? ie., finished all current work?
+        bool is_finished() const { return this->queue.empty(); }
 
-		    //! finalize queue setup; should be called before generating work assignments
-		    void complete_queue_setup();
+        //! finalize queue setup; should be called before generating work assignments
+        void complete_queue_setup();
         
         
         // INTERFACE -- REPORTING
@@ -361,27 +362,27 @@ namespace transport
         void update_estimated_completion();
 
 
-		    // INTERFACE -- MANAGE WORK ASSIGNMENTS
+        // INTERFACE -- MANAGE WORK ASSIGNMENTS
 
       public:
 
-		    //! does assignable work remain?
-		    bool assignable() const;
+        //! does assignable work remain?
+        bool assignable() const;
 
-		    //! generate work assignments
-		    std::list<work_assignment> assign_work(base_writer::logger& log);
+        //! generate work assignments
+        std::list<work_assignment> assign_work(base_writer::logger& log);
 
-		    //! mark a worker as assigned
-		    void mark_assigned(const work_assignment& assignment);
+        //! mark a worker as assigned
+        void mark_assigned(const work_assignment& assignment);
 
-		    //! mark a worker as unassigned, updating its mean time per work_item
-		    void mark_unassigned(unsigned int worker, boost::timer::nanosecond_type time, unsigned int items);
+        //! mark a worker as unassigned, updating its mean time per work_item
+        void mark_unassigned(unsigned int worker, boost::timer::nanosecond_type time, unsigned int items);
 
-		    //! mark a worker as inactive, meaning that it has closed down after running out of work
-		    void mark_inactive(unsigned int worker);
+        //! mark a worker as inactive, meaning that it has closed down after running out of work
+        void mark_inactive(unsigned int worker);
 
-		    //! are all workers inactive?
-		    bool all_inactive() const { return(this->active == 0); }
+        //! are all workers inactive?
+        bool all_inactive() const { return(this->active == 0); }
 
         //! get number of active workers
         unsigned int get_number_active() const { return(this->active); }
@@ -401,57 +402,57 @@ namespace transport
         void report_aggregation(boost::timer::nanosecond_type time);
 
 
-		    // INTERNAL API
+        // INTERNAL API
 
       protected:
 
-		    //! build a work queue from a list of work items
-		    template <typename WorkItem>
-		    void build_queue(const std::vector<WorkItem>& q);
+        //! build a work queue from a list of work items
+        template <typename WorkItem>
+        void build_queue(const std::vector<WorkItem>& q);
 
         //! build a work queue for a database of configurations
         template <typename Database>
-        void build_queue(const Database& db);
+        void build_queue(const Database& db, bool new_beta_sort = false);
 
 
-		    // SCHEDULING STRATEGIES
+        // SCHEDULING STRATEGIES
 
       protected:
 
-		    //! schedule work for a pool of CPU only workers
-		    std::list<work_assignment> assign_work_cpu_only_strategy(base_writer::logger& log);
+        //! schedule work for a pool of CPU only workers
+        std::list<work_assignment> assign_work_cpu_only_strategy(base_writer::logger& log);
 
-		    //! schedule work for a pool of GPU only workers
-		    std::list<work_assignment> assign_work_gpu_only_strategy(base_writer::logger& log);
+        //! schedule work for a pool of GPU only workers
+        std::list<work_assignment> assign_work_gpu_only_strategy(base_writer::logger& log);
 
-		    //! schedule work for a mixed pool of CPU and GPU workers
-		    std::list<work_assignment> assign_work_mixed_strategy(base_writer::logger& log);
+        //! schedule work for a mixed pool of CPU and GPU workers
+        std::list<work_assignment> assign_work_mixed_strategy(base_writer::logger& log);
 
 
-		    // INTERNAL DATA
+        // INTERNAL DATA
 
       private:
 
 
-		    // WORKER POOL
-        
+        // WORKER POOL
+
         //! Number of workers in the pool
         const unsigned int number_workers;
 
         //! Information about workers
         std::vector<worker_scheduling_data> worker_data;
 
-		    //! Number of workers still to be initialized
-		    unsigned int waiting_for_setup;
+        //! Number of workers still to be initialized
+        unsigned int waiting_for_setup;
 
-		    //! Number of workers currently unassigned
-		    unsigned int unassigned;
+        //! Number of workers currently unassigned
+        unsigned int unassigned;
 
-		    //! Number of workers currently active
-		    unsigned int active;
+        //! Number of workers currently active
+        unsigned int active;
 
-		    //! Current state size; used when assigning work to GPUs
-		    unsigned int state_size;
+        //! Current state size; used when assigning work to GPUs
+        unsigned int state_size;
 
         //! CPUs in our pool of workers?
         bool has_cpus;
@@ -460,47 +461,47 @@ namespace transport
         bool has_gpus;
 
 
-		    // QUEUE AND ALLOCATION DATA
+        // QUEUE AND ALLOCATION DATA
 
-		    //! Queue of work items
-		    std::list<unsigned int> queue;
+        //! Queue of work items
+        std::list<unsigned int> queue;
 
-		    //! Maximum number of work items to be allocated in one shot
-		    unsigned int max_work_allocation;
+        //! Maximum number of work items to be allocated in one shot
+        unsigned int max_work_allocation;
 
-		    //! Current scheduling granularity
-		    boost::timer::nanosecond_type current_granularity;
+        //! Current scheduling granularity
+        boost::timer::nanosecond_type current_granularity;
 
-		    //! Keep track of total time spent aggregating, so we can work out a mean aggregation time
-		    boost::timer::nanosecond_type total_aggregation_time;
+        //! Keep track of total time spent aggregating, so we can work out a mean aggregation time
+        boost::timer::nanosecond_type total_aggregation_time;
 
-		    //! Keep track of total number of aggregations, so we can work out a mean aggregation time
-		    unsigned int number_aggregations;
+        //! Keep track of total number of aggregations, so we can work out a mean aggregation time
+        unsigned int number_aggregations;
 
 
-		    // CURRENT STATUS
+        // CURRENT STATUS
 
-		    //! Keep track of time elapsed
-		    boost::timer::cpu_timer timer;
+        //! Keep track of time elapsed
+        boost::timer::cpu_timer timer;
 
-		    //! Keep track of total time spent doing work, to estimate a time-to-completion
-		    boost::timer::nanosecond_type total_work_time;
+        //! Keep track of total time spent doing work, to estimate a time-to-completion
+        boost::timer::nanosecond_type total_work_time;
 
-		    //! Keep track of total number of work items which have been fully processed, to estimate a time-to-complation
-		    unsigned int work_items_completed;
+        //! Keep track of total number of work items which have been fully processed, to estimate a time-to-complation
+        unsigned int work_items_completed;
 
-		    //! Keep track of total number of work items which are still in-flight
-		    unsigned int work_items_in_flight;
-    
+        //! Keep track of total number of work items which are still in-flight
+        unsigned int work_items_in_flight;
+
         //! flag indicating whether work is complete; used to add 'all work items processed' message to progress reports
         bool finished;
         
         
         // ESTIMATED TIME TO COMPLETION
-    
+
         //! Current estimate of completion time
         boost::posix_time::ptime estimated_completion;
-    
+
         //! Current estimate of expected CPU time
         boost::timer::nanosecond_type estimated_cpu_time;
 
@@ -511,209 +512,214 @@ namespace transport
 
         std::mt19937 urng;
 
-	    };
+      };
 
 
-		void worker_scheduler::reset()
-			{
-				this->worker_data.clear();
-				this->worker_data.resize(this->number_workers);
+    void worker_scheduler::reset()
+    {
+      this->worker_data.clear();
+      this->worker_data.resize(this->number_workers);
 
-				this->waiting_for_setup = this->number_workers;
-				this->unassigned = 0;
-				this->active = 0;
+      this->waiting_for_setup = this->number_workers;
+      this->unassigned = 0;
+      this->active = 0;
 
-				this->has_cpus = false;
-				this->has_gpus = false;
+      this->has_cpus = false;
+      this->has_gpus = false;
 
-        this->finished = false;
+      this->finished = false;
 
-				// reset metadata and statistics
-				this->total_aggregation_time = 0;
-				this->total_work_time = 0;
-				this->number_aggregations = 0;
-				this->work_items_completed = 0;
-				this->work_items_in_flight = 0;
-				this->timer.start();
-			}
+      // reset metadata and statistics
+      this->total_aggregation_time = 0;
+      this->total_work_time = 0;
+      this->number_aggregations = 0;
+      this->work_items_completed = 0;
+      this->work_items_in_flight = 0;
+      this->timer.start();
+    }
 
 
-		void worker_scheduler::initialize_worker(base_writer::logger& log, unsigned int worker, MPI::slave_information_payload& payload)
-			{
-		    if(!(this->worker_data[worker].get_initialization_status()))
-			    {
-		        worker_type type = payload.get_type();
-            switch(type)
-              {
-                case worker_type::cpu:
-                  {
-                    this->has_cpus = true;
-                    break;
-                  }
-
-                case worker_type::gpu:
-                  {
-                    this->has_gpus = true;
-                    break;
-                  }
-              }
-
-		        this->worker_data[worker].set_data(worker, type, payload.get_capacity(), payload.get_priority());
-				    --this->waiting_for_setup;
-
-		        std::ostringstream msg;
-		        msg << "** Worker " << worker+1 << " identified as ";
-            switch(type)
-              {
-                case worker_type::cpu:
-                  msg << "CPU";
+    void worker_scheduler::initialize_worker(base_writer::logger& log, unsigned int worker, MPI::slave_information_payload& payload)
+    {
+      if(!(this->worker_data[worker].get_initialization_status()))
+        {
+          worker_type type = payload.get_type();
+          switch(type)
+            {
+              case worker_type::cpu:
+                {
+                  this->has_cpus = true;
                   break;
+                }
 
-                case worker_type::gpu:
-                  msg << "GPU, available memory = " << format_memory(payload.get_capacity());
+              case worker_type::gpu:
+                {
+                  this->has_gpus = true;
                   break;
-              }
+                }
+            }
 
-		        msg << " and priority " << payload.get_priority();
+          this->worker_data[worker].set_data(worker, type, payload.get_capacity(), payload.get_priority());
+          --this->waiting_for_setup;
 
-		        BOOST_LOG_SEV(log, base_writer::log_severity_level::normal) << msg.str();
+          std::ostringstream msg;
+          msg << "** Worker " << worker+1 << " identified as ";
+          switch(type)
+            {
+              case worker_type::cpu:
+                msg << "CPU";
+                break;
 
-				    ++this->unassigned;
-				    ++this->active;
-			    }
+              case worker_type::gpu:
+                msg << "GPU, available memory = " << format_memory(payload.get_capacity());
+                break;
+            }
+
+          msg << " and priority " << payload.get_priority();
+
+          BOOST_LOG_SEV(log, base_writer::log_severity_level::normal) << msg.str();
+
+          ++this->unassigned;
+          ++this->active;
+        }
 		    else
-			    {
-		        BOOST_LOG_SEV(log, base_writer::log_severity_level::error) << "!! Unexpected double identification for worker  " << worker;
-			    }
+        {
+          BOOST_LOG_SEV(log, base_writer::log_severity_level::error) << "!! Unexpected double identification for worker  " << worker;
+        }
 
-			}
-
-
-		template <typename number>
-		void worker_scheduler::prepare_queue(twopf_task<number>& task)
-			{
-				this->build_queue(task.get_twopf_database());
-			}
+    }
 
 
-		template <typename number>
-		void worker_scheduler::prepare_queue(threepf_task<number>& task)
-			{
-				this->build_queue(task.get_threepf_database());
-			}
+    template <typename number>
+    void worker_scheduler::prepare_queue(twopf_task<number>& task)
+      {
+        this->build_queue(task.get_twopf_database());
+      }
 
 
-		template <typename number>
-		void worker_scheduler::prepare_queue(zeta_twopf_task<number>& task)
-			{
-				this->build_queue(task.get_twopf_database());
-			}
+    template <typename number>
+    void worker_scheduler::prepare_queue(threepf_task<number>& task, bool new_beta_sort)
+      {
+        this->build_queue(task.get_threepf_database(), new_beta_sort);
+      }
 
 
-		template <typename number>
-		void worker_scheduler::prepare_queue(zeta_threepf_task<number>& task)
-			{
-				this->build_queue(task.get_threepf_database());
-			}
+    template <typename number>
+    void worker_scheduler::prepare_queue(zeta_twopf_task<number>& task)
+      {
+        this->build_queue(task.get_twopf_database());
+      }
 
 
-		template <typename number>
-		void worker_scheduler::prepare_queue(output_task<number>& task)
-			{
+    template <typename number>
+    void worker_scheduler::prepare_queue(zeta_threepf_task<number>& task)
+      {
+        this->build_queue(task.get_threepf_database());
+      }
+
+
+    template <typename number>
+    void worker_scheduler::prepare_queue(output_task<number>& task)
+      {
         // TODO: move output tasks to a database system?
-				this->build_queue(task.get_elements());
-			}
+        this->build_queue(task.get_elements());
+      }
 
 
     // TODO: this version of build_queue() is required only for output tasks, which don't use the database variant. Refactor output_task so it can be removed?
-		template <typename WorkItem>
-		void worker_scheduler::build_queue(const std::vector<WorkItem>& q)
-			{
-				this->queue.clear();
+    template <typename WorkItem>
+    void worker_scheduler::build_queue(const std::vector<WorkItem>& q)
+    {
+      this->queue.clear();
 
-				// build a queue of work items from the serial numbers of each work item
-				for(typename std::vector<WorkItem>::const_iterator t = q.begin(); t != q.end(); ++t)
-					{
-						this->queue.push_back(t->get_serial());
-					}
+      // build a queue of work items from the serial numbers of each work item
+      for(typename std::vector<WorkItem>::const_iterator t = q.begin(); t != q.end(); ++t)
+        {
+          this->queue.push_back(t->get_serial());
+        }
 
-				// sort into ascending order of serial number, and remove any duplicates
-				// (note duplicate removal using unique() requires a sorted list)
-				this->queue.sort();
-				this->queue.unique();
+      // sort into ascending order of serial number, and remove any duplicates
+      // (note duplicate removal using unique() requires a sorted list)
+      this->queue.sort();
+      this->queue.unique();
 
-        // shuffle items; work items with nearby serial numbers typically have similar properties and therefore similar
-        // integration times. That can bias the average time-per-item low or high at the beginnng of the integration,
-        // making the remaining-time estimate unreliable
-        // shuffling attempt to alleviate that problem a bit
+      // shuffle items; work items with nearby serial numbers typically have similar properties and therefore similar
+      // integration times. That can bias the average time-per-item low or high at the beginnng of the integration,
+      // making the remaining-time estimate unreliable
+      // shuffling attempt to alleviate that problem a bit
+      std::vector<unsigned int> temp(this->queue.size());
+      std::copy(this->queue.begin(), this->queue.end(), temp.begin());
+      std::shuffle(temp.begin(), temp.end(), this->urng);
+      std::copy(temp.begin(), temp.end(), this->queue.begin());
+    }
+
+
+    template <typename Database>
+    void worker_scheduler::build_queue(const Database& db, bool new_beta_sort)
+    {
+      this->queue.clear();
+
+      // build a queue of work items from the serial numbers of each work item
+      for(typename Database::const_config_iterator t = db.config_begin(); t != db.config_end(); ++t)
+        {
+          this->queue.push_back(t->get_serial());
+        }
+
+      // sort into ascending order of serial number, and remove any duplicates
+      // (note duplicate removal using unique() requires a sorted list)
+      this->queue.sort();
+      this->queue.unique();
+        
+      //! If statement to determine if we want to enable out new task scheduler, or randomise the kserials - which is the old way
+      if (new_beta_sort) {
+        std::vector<unsigned int> temp(this->queue.size());
+        std::copy(this->queue.begin(), this->queue.end(), temp.begin());
+        // Copies the existing queue
+
+        std::vector<double>  BetaList;
+        // Creates a new vector that the beta values will be stored in
+
+        for(typename Database::const_config_iterator t = db.config_begin(); t != db.config_end(); ++t)
+          {
+            BetaList.push_back(t->get_beta());
+          }
+        //! Iterates through the kserials and then gets their respective beta value
+
+        std::vector<std::vector<double>> BetaSerials; // Initialises the vector of a vector to associate a kserial with a beta
+        for( long unsigned int iter=0; iter<BetaList.size(); ++iter){
+          BetaSerials.push_back({BetaList[iter],static_cast<double>(temp[iter])});
+        }  //This is what creates the vector with the beta values and their associated k-serials
+
+        std::sort(BetaSerials.begin(),BetaSerials.end());
+
+        // It is at this point that we want to apply the conditions that apply to beta < 1/3 values
+        for ( auto&& BetaSerial : BetaSerials)
+        {
+          if ( BetaSerial[0] < 1.0/3.0 ) {
+            BetaSerial[0] = (1.0/3.0) + 2*( (1.0/3.0) - BetaSerial[0]); // Formula to translate the beta < 1/3 values to equivalent > 1/3 values
+          }
+        }
+
+        // We now re-sort the beta list into ascending order
+        std::sort(BetaSerials.begin(),BetaSerials.end());
+        std::reverse(BetaSerials.begin(),BetaSerials.end());
+        // And then reverse the list, so that way the largest beta is at the front, and smallest is at the back.
+
+        BetaList.clear(); // clears the beta list, so that way we can now populate with the decreasing values
+
+        for(auto & BetaSerial : BetaSerials){
+          BetaList.push_back(static_cast<int>(BetaSerial[1]));
+        }
+        // We now have the inverse sorted beta values, which can then be copied over to the worker queue to be executed by the nodes
+        std::copy(BetaList.begin(), BetaList.end(), this->queue.begin());
+
+      } else{
+        //? We are now in the ordinary branch, so randomly sorting as usual - the old way of doing it so the old code is perfectly fine
         std::vector<unsigned int> temp(this->queue.size());
         std::copy(this->queue.begin(), this->queue.end(), temp.begin());
         std::shuffle(temp.begin(), temp.end(), this->urng);
         std::copy(temp.begin(), temp.end(), this->queue.begin());
-			}
-
-
-    template <typename Database>
-    void worker_scheduler::build_queue(const Database& db)
-      {
-        this->queue.clear();
-
-        // build a queue of work items from the serial numbers of each work item
-        for(typename Database::const_config_iterator t = db.config_begin(); t != db.config_end(); ++t)
-          {
-            this->queue.push_back(t->get_serial());
-          }
-
-        // sort into ascending order of serial number, and remove any duplicates
-        // (note duplicate removal using unique() requires a sorted list)
-        this->queue.sort();
-        this->queue.unique();
-        
-        
-        //! If statment to determine if we want to sort by inverse beta, or randomise the kserials, which is the old way
-        if (CPPTRANSPORT_SWITCH_BETA_REVERSE_MODE2)
-        {
-            //? We are now in the branch where we are sorting via inverse betas
-
-            std::vector<unsigned int> temp(this->queue.size());
-            std::copy(this->queue.begin(), this->queue.end(), temp.begin());
-            // Copies the existing queue		
-
-            std::vector<double>  BetaList;
-            // Creates a new vector that the beta values will be stored in
-
-            for(typename Database::const_config_iterator t = db.config_begin(); t != db.config_end(); ++t)
-              {
-              	BetaList.push_back(t->get_beta());
-              }
-            //! itterates through the kserials and then gets their respective beta value
-
-            std::vector<std::vector<double>> BetaSerials; // Initalises the vector of a vector to associate a kserial with a beta
-            for( long unsigned int iter=0; iter<BetaList.size(); ++iter){
-	            BetaSerials.push_back({BetaList[iter],static_cast<double>(temp[iter])});
-            } //This is what creates the vector with the beta values and their associated k-serials
-
-            std::sort(BetaSerials.begin(),BetaSerials.end());
-            std::reverse(BetaSerials.begin(),BetaSerials.end());
-            // Sorts and then reverse the list, so that way the largest beta is at the front, and smallest is at the back.
-
-            BetaList.clear(); // clears the beta list, so that way we can now populate with the decreasing values
-
-            for( long unsigned int iter=0; iter<BetaSerials.size(); ++iter){
-	            BetaList.push_back(static_cast<int>(BetaSerials[iter][1]));
-            }
-            // We now have the inverse sorted beta values, which can then be copied over to the worker queue to be executed by the nodes
-            std::copy(BetaList.begin(), BetaList.end(), this->queue.begin());
-
-            } // End of if
-			
-        else{
-            //? We are now in the ordinary branch, so randomly sorting as usual - the old way of doing it so the old code is perfectly fine
-            std::vector<unsigned int> temp(this->queue.size());
-            std::copy(this->queue.begin(), this->queue.end(), temp.begin());
-            std::shuffle(temp.begin(), temp.end(), this->urng);
-            std::copy(temp.begin(), temp.end(), this->queue.begin());
-        }
+      }
     }
 
 
@@ -733,151 +739,151 @@ namespace transport
       }
 
 
-		void worker_scheduler::complete_queue_setup()
-			{
-				// set maximum work allocation to force multiple scheduling adjustments during
-				// the lifetime of the task.
-				// This is intended to prevent lots of k-configurations being allocated in one go,
-				// and then the system inadvertently running out of work with some cores
-				// left unallocated for a long period.
-				if(!this->worker_data.empty())
-					{
-				    this->max_work_allocation =
+    void worker_scheduler::complete_queue_setup()
+      {
+        // set maximum work allocation to force multiple scheduling adjustments during
+        // the lifetime of the task.
+        // This is intended to prevent lots of k-configurations being allocated in one go,
+        // and then the system inadvertently running out of work with some cores
+        // left unallocated for a long period.
+        if(!this->worker_data.empty())
+          {
+            this->max_work_allocation =
               std::max(static_cast<unsigned int>(this->queue.size() / (5*this->worker_data.size())),
                        static_cast<unsigned int>(1));
-					}
-				else
-					{
-						this->max_work_allocation = 1;
-					}
-			}
+          }
+        else
+          {
+            this->max_work_allocation = 1;
+          }
+      }
 
 
-		bool worker_scheduler::assignable() const
-			{
-				// are there unassigned workers and work items left for them to process?
-				return(!this->queue.empty() && this->unassigned > 0);
-			}
+    bool worker_scheduler::assignable() const
+      {
+        // are there unassigned workers and work items left for them to process?
+        return(!this->queue.empty() && this->unassigned > 0);
+      }
 
 
-		void worker_scheduler::mark_assigned(const work_assignment& assignment)
-			{
-				// check that there are unassigned workers
-				if(this->unassigned == 0)
+    void worker_scheduler::mark_assigned(const work_assignment& assignment)
+      {
+        // check that there are unassigned workers
+        if(this->unassigned == 0)
           throw runtime_exception(exception_type::SCHEDULING_ERROR, CPPTRANSPORT_SCHEDULING_NO_UNASSIGNED);
 
-				// if this worker is already assigned, then an error must have occurred
-				if(this->worker_data[assignment.get_worker()].is_assigned())
+        // if this worker is already assigned, then an error must have occurred
+        if(this->worker_data[assignment.get_worker()].is_assigned())
           throw runtime_exception(exception_type::SCHEDULING_ERROR, CPPTRANSPORT_SCHEDULING_ALREADY_ASSIGNED);
 
-				// mark this worker as assigned
-				this->worker_data[assignment.get_worker()].mark_assigned(true);
-				--this->unassigned;
+        // mark this worker as assigned
+        this->worker_data[assignment.get_worker()].mark_assigned(true);
+        --this->unassigned;
 
-				// remove assigned work items from the queue
+        // remove assigned work items from the queue
         for(const unsigned int& item : assignment.get_items())
-					{
-						// we're guaranteed only one instance of this work item exists in the queue
+          {
+            // we're guaranteed only one instance of this work item exists in the queue
             auto u = std::find(this->queue.begin(), this->queue.end(), item);
 
-						if(u == this->queue.end())
-							{
+            if(u == this->queue.end())
+              {
                 std::ostringstream msg;
                 msg << CPPTRANSPORT_SCHEDULING_ASSIGN_NOT_EXIST << " " << item << ", "
                     << CPPTRANSPORT_SCHEDULING_ASSIGN_WORKER << " " << assignment.get_worker();
                 throw runtime_exception(exception_type::SCHEDULING_ERROR, msg.str());
-							}
-						else
-							{
-								this->queue.erase(u);
-								++this->work_items_in_flight;
-							}
-					}
-			}
+              }
+            else
+              {
+                this->queue.erase(u);
+                ++this->work_items_in_flight;
+              }
+          }
+      }
 
 
-		void worker_scheduler::mark_unassigned(unsigned int worker, boost::timer::nanosecond_type time, unsigned int items)
-			{
+    void worker_scheduler::mark_unassigned(unsigned int worker, boost::timer::nanosecond_type time, unsigned int items)
+      {
         if(worker >= this->worker_data.size())
           throw runtime_exception(exception_type::RUNTIME_ERROR, CPPTRANSPORT_SCHEDULING_INDEX_OUT_OF_RANGE);
-        
-				// if this worker is not already assigned, an error must have occurred
-				if(!this->worker_data[worker].is_assigned())
+
+        // if this worker is not already assigned, an error must have occurred
+        if(!this->worker_data[worker].is_assigned())
           throw runtime_exception(exception_type::SCHEDULING_ERROR, CPPTRANSPORT_SCHEDULING_NOT_ALREADY_ASSIGNED);
 
-				this->worker_data[worker].update_timing_data(time, items);
-				this->worker_data[worker].mark_assigned(false);
-				++this->unassigned;
+        this->worker_data[worker].update_timing_data(time, items);
+        this->worker_data[worker].mark_assigned(false);
+        ++this->unassigned;
 
-				this->work_items_completed += items;
-		    if(this->work_items_in_flight >= items)
-			    {
-		        this->work_items_in_flight -= items;
-			    }
-		    else
-			    {
-				    throw runtime_exception(exception_type::SCHEDULING_ERROR, CPPTRANSPORT_SCHEDULING_OVERRELEASE_INFLIGHT);
-			    }
+        this->work_items_completed += items;
+        if(this->work_items_in_flight >= items)
+          {
+            this->work_items_in_flight -= items;
+          }
+        else
+          {
+            throw runtime_exception(exception_type::SCHEDULING_ERROR, CPPTRANSPORT_SCHEDULING_OVERRELEASE_INFLIGHT);
+          }
 
         // accumulate total time spent integrating
-				this->total_work_time += time;
-        
+        this->total_work_time += time;
+
         // update estimated time-to-completion
         this->update_estimated_completion();
-			}
+      }
 
 
-		void worker_scheduler::mark_inactive(unsigned int worker)
-			{
+    void worker_scheduler::mark_inactive(unsigned int worker)
+      {
         if(worker >= this->worker_data.size())
           throw runtime_exception(exception_type::RUNTIME_ERROR, CPPTRANSPORT_SCHEDULING_INDEX_OUT_OF_RANGE);
 
-				// if this worker is already inactive, an error must have occurred
-				if(!this->worker_data[worker].is_active())
+        // if this worker is already inactive, an error must have occurred
+        if(!this->worker_data[worker].is_active())
           throw runtime_exception(exception_type::SCHEDULING_ERROR, CPPTRANSPORT_SCHEDULING_ALREADY_INACTIVE);
 
-				this->worker_data[worker].mark_active(false);
-				--this->active;
+        this->worker_data[worker].mark_active(false);
+        --this->active;
 
-				if(this->active == 0 && this->work_items_in_flight > 0)
+        if(this->active == 0 && this->work_items_in_flight > 0)
           throw runtime_exception(exception_type::SCHEDULING_ERROR, CPPTRANSPORT_SCHEDULING_UNDER_INFLIGHT);
-			}
+      }
     
     
     const worker_scheduling_data& worker_scheduler::operator[](unsigned int worker) const
       {
         if(worker >= this->worker_data.size())
           throw runtime_exception(exception_type::RUNTIME_ERROR, CPPTRANSPORT_SCHEDULING_INDEX_OUT_OF_RANGE);
-        
+
         return this->worker_data[worker];
       }
 
 
-		void worker_scheduler::report_aggregation(boost::timer::nanosecond_type time)
-			{
-				this->total_aggregation_time += time;
-				++this->number_aggregations;
+    void worker_scheduler::report_aggregation(boost::timer::nanosecond_type time)
+      {
+        this->total_aggregation_time += time;
+        ++this->number_aggregations;
 
-		    boost::timer::nanosecond_type mean_aggregation_time =
+        boost::timer::nanosecond_type mean_aggregation_time =
           this->total_aggregation_time / this->number_aggregations;
 
-				// we want to allocate work in chunks large enough that they last
-				// many times the time required to aggregate, otherwise the workers will spend
-				// a lot of time waiting around for the master to process MPI messages
-				// in between aggregations
+        // we want to allocate work in chunks large enough that they last
+        // many times the time required to aggregate, otherwise the workers will spend
+        // a lot of time waiting around for the master to process MPI messages
+        // in between aggregations
 
         // note we don't have to worry about how many items are left;
         // the scheduler will never allocate more than an equitable amount of work per-worker,
         // no matter how large the granularity becomes
-				if(10*mean_aggregation_time > CPPTRANSPORT_DEFAULT_SCHEDULING_GRANULARITY)
-					{
-						this->current_granularity = 10*mean_aggregation_time;
-					}
-				else
-					{
-						this->current_granularity = CPPTRANSPORT_DEFAULT_SCHEDULING_GRANULARITY;
-					}
-			}
+        if(10*mean_aggregation_time > CPPTRANSPORT_DEFAULT_SCHEDULING_GRANULARITY)
+          {
+            this->current_granularity = 10*mean_aggregation_time;
+          }
+        else
+          {
+            this->current_granularity = CPPTRANSPORT_DEFAULT_SCHEDULING_GRANULARITY;
+          }
+      }
     
     
     double worker_scheduler::query_completion() const
@@ -918,111 +924,111 @@ namespace transport
     
     
     std::list<work_assignment> worker_scheduler::assign_work(base_writer::logger& log)
-			{
-		    // generate a work assignment
+      {
+        // generate a work assignment
 
-		    if(this->has_cpus && !this->has_gpus)
-			    {
-		        // CPU only scheduling strategy
-		        return this->assign_work_cpu_only_strategy(log);
-			    }
-		    
+        if(this->has_cpus && !this->has_gpus)
+          {
+            // CPU only scheduling strategy
+            return this->assign_work_cpu_only_strategy(log);
+          }
+
         if(this->has_gpus && !this->has_cpus)
-			    {
-		        // GPU only scheduling strategy
-		        return this->assign_work_gpu_only_strategy(log);
-			    }
+          {
+            // GPU only scheduling strategy
+            return this->assign_work_gpu_only_strategy(log);
+          }
 
         // mixed CPU & GPU scheduling strategy
         return this->assign_work_mixed_strategy(log);
-			}
+      }
 
 
-		std::list<work_assignment> worker_scheduler::assign_work_cpu_only_strategy(base_writer::logger& log)
-			{
-				// schedule work for a CPU only pool
-				// the strategy is to avoid cores becoming idle because they have run out of work
+    std::list<work_assignment> worker_scheduler::assign_work_cpu_only_strategy(base_writer::logger& log)
+      {
+        // schedule work for a CPU only pool
+        // the strategy is to avoid cores becoming idle because they have run out of work
 
-		    // build a list of workers requiring assignments
-		    // storing a list of iterators is OK here; they would be invalidated by operations on this->worker_data,
-		    // but we won't be amending it within this function
-		    std::list< std::vector<worker_scheduling_data>::iterator > workers;
+        // build a list of workers requiring assignments
+        // storing a list of iterators is OK here; they would be invalidated by operations on this->worker_data,
+        // but we won't be amending it within this function
+        std::list< std::vector<worker_scheduling_data>::iterator > workers;
 
         // build list of iterators to workers requiring assignments
-		    for(auto t = this->worker_data.begin(); t != this->worker_data.end(); ++t)
-			    {
-		        if(!t->is_assigned()) workers.push_back(t);
-			    }
+        for(auto t = this->worker_data.begin(); t != this->worker_data.end(); ++t)
+          {
+            if(!t->is_assigned()) workers.push_back(t);
+          }
 
-				// sort into ascending order of mean time per item
-				struct MeanTimeComparator
-					{
-						bool operator()(const std::vector<worker_scheduling_data>::iterator& A, const std::vector<worker_scheduling_data>::iterator& B)
-							{
-								if(A->get_total_time() == 0) return(true);
-								if(B->get_total_time() == 0) return(false);
+        // sort into ascending order of mean time per item
+        struct MeanTimeComparator
+          {
+            bool operator()(const std::vector<worker_scheduling_data>::iterator& A, const std::vector<worker_scheduling_data>::iterator& B)
+              {
+                if(A->get_total_time() == 0) return(true);
+                if(B->get_total_time() == 0) return(false);
 
-								// at this stage, getting mean time per worker should be safe -- no divide by zero possibility
-						    return(A->get_mean_time_per_work_item() < B->get_mean_time_per_work_item());
-							}
-					};
-				workers.sort(MeanTimeComparator());
+                // at this stage, getting mean time per worker should be safe -- no divide by zero possibility
+                return(A->get_mean_time_per_work_item() < B->get_mean_time_per_work_item());
+              }
+          };
+        workers.sort(MeanTimeComparator());
 
-				// step through list of workers requiring assignments, assigning work to the fastest first.
-				// Note that workers who have not yet had any assignments will be at the top of the queue
-		    std::list<work_assignment> assignment_list;
+        // step through list of workers requiring assignments, assigning work to the fastest first.
+        // Note that workers who have not yet had any assignments will be at the top of the queue
+        std::list<work_assignment> assignment_list;
 
-				// try to prevent large chunks of work from being allocated -- this can mean one worker gobbles up all the work items,
+        // try to prevent large chunks of work from being allocated -- this can mean one worker gobbles up all the work items,
         // leaving other workers idle
         // worker_scale is the geometric mean of (i) the number of workers requiring new assignments, and (ii) the total number
         // of workers
         // the maximum allocation per worker is computed by dividing the remaining number of items in the queue by this
         // geometric mean
-				assert(workers.size() > 0);
-				double worker_scale = sqrt(workers.size() * this->worker_data.size());
+        assert(workers.size() > 0);
+        double worker_scale = sqrt(workers.size() * this->worker_data.size());
 
-				unsigned int max_allocation_per_worker =
+        unsigned int max_allocation_per_worker =
           std::max(static_cast<unsigned int>(1),
                    static_cast<unsigned int>(floor(static_cast<double>(this->queue.size()) / worker_scale)));
 
-				// set up an iterator to point at the next item of work
+        // set up an iterator to point at the next item of work
         auto next_item = this->queue.begin();
 
-				// loop through workers, allocating work from the queue
+        // loop through workers, allocating work from the queue
 #ifdef CPPTRANSPORT_DEBUG_SCHEDULER
-				BOOST_LOG_SEV(log, generic_writer::normal) << "%% BEGIN NEW SCHEDULE (max work allocation=" << this->max_work_allocation << ", max allocation per worker=" << max_allocation_per_worker << ")";
+        BOOST_LOG_SEV(log, generic_writer::normal) << "%% BEGIN NEW SCHEDULE (max work allocation=" << this->max_work_allocation << ", max allocation per worker=" << max_allocation_per_worker << ")";
 #endif
         for(auto wkr : workers)
-					{
+          {
             // exit if no work left to be assigned
             if(next_item == this->queue.end()) break;
-            
-				    std::list<unsigned int> items;
 
-						// is this a worker which has not yet had any assignment?
-						if(wkr->get_total_time() == 0)
-							{
+            std::list<unsigned int> items;
+
+            // is this a worker which has not yet had any assignment?
+            if(wkr->get_total_time() == 0)
+              {
 #ifdef CPPTRANSPORT_DEBUG_SCHEDULER
-								BOOST_LOG_SEV(log, generic_writer::normal)
-								  << "%% Worker " << (*t)->get_number()+1 << " has not yet been allocated work; allocating 1 item";
+                BOOST_LOG_SEV(log, generic_writer::normal)
+                  << "%% Worker " << (*t)->get_number()+1 << " has not yet been allocated work; allocating 1 item";
 #endif
-								// if so, assign just a single work item to get a sense of how long it takes this worker to process
-								items.push_back(*next_item);
-								++next_item;
-							}
-						else
-							{
-								// allocate enough work items to fill up the current scheduling granularity (begins at 60 seconds)
-								// or the mean allocation per worker, whichever is smaller
-						    boost::timer::nanosecond_type time_per_item             = wkr->get_mean_time_per_work_item();
-						    boost::timer::nanosecond_type items_per_granularity     = time_per_item > 0 ? this->current_granularity / time_per_item : 1.0;
-						    unsigned int                  int_items_per_granularity = std::max(static_cast<unsigned int>(1), static_cast<unsigned int>(floor(items_per_granularity)));
+                // if so, assign just a single work item to get a sense of how long it takes this worker to process
+                items.push_back(*next_item);
+                ++next_item;
+              }
+            else
+              {
+                // allocate enough work items to fill up the current scheduling granularity (begins at 60 seconds)
+                // or the mean allocation per worker, whichever is smaller
+                boost::timer::nanosecond_type time_per_item             = wkr->get_mean_time_per_work_item();
+                boost::timer::nanosecond_type items_per_granularity     = time_per_item > 0 ? this->current_granularity / time_per_item : 1.0;
+                unsigned int                  int_items_per_granularity = std::max(static_cast<unsigned int>(1), static_cast<unsigned int>(floor(items_per_granularity)));
 
                 // unit of work is the smallest of (i) the current maximum allocation, currently fixed at 1/5 of the
                 // original queue size, and (ii) the number of items needed to fill
                 // out the current scheduling granularity
-								unsigned int unit_of_work = std::min(this->max_work_allocation, int_items_per_granularity);
-								if(unit_of_work == 0) unit_of_work = 1;
+                unsigned int unit_of_work = std::min(this->max_work_allocation, int_items_per_granularity);
+                if(unit_of_work == 0) unit_of_work = 1;
 
                 // actual number of work items allocated is the smallest of the unit of work and
                 // the maximum permitted allocation based on the current queue size
@@ -1030,80 +1036,80 @@ namespace transport
                 // this means there are two caps on the number of work items a worker can be allocated
                 // 1 - the maximum allocation of 1/5 original queue size, fixed at the beginning (alterable in principle but not used in current implementation)
                 // 2 - the maximum allocation taking into account current queue size and number of workers needing new jobs
-								unsigned int num_work_items = std::min(unit_of_work, max_allocation_per_worker);
+                unsigned int num_work_items = std::min(unit_of_work, max_allocation_per_worker);
 
 #ifdef CPPTRANSPORT_DEBUG_SCHEDULER
-								BOOST_LOG_SEV(log, generic_writer::normal)
-								  << "%% Worker " << (*t)->get_number()+1 << " mean time-per-item = " << format_time(time_per_item)
+                BOOST_LOG_SEV(log, generic_writer::normal)
+                  << "%% Worker " << (*t)->get_number()+1 << " mean time-per-item = " << format_time(time_per_item)
                   << " -> granularity = " << granularity_int
                   << ". Allocated " << num_work_items << " items";
 #endif
 
-								for(unsigned int i = 0; next_item != this->queue.end() && i < num_work_items; ++i)
-									{
-										items.push_back(*next_item);
-										++next_item;
-									}
-							}
+                for(unsigned int i = 0; next_item != this->queue.end() && i < num_work_items; ++i)
+                  {
+                    items.push_back(*next_item);
+                    ++next_item;
+                  }
+              }
 
-						assignment_list.emplace_back(wkr->get_number(), items);
-					}
+            assignment_list.emplace_back(wkr->get_number(), items);
+          }
 
-				return(assignment_list);
-			}
+        return(assignment_list);
+      }
 
 
-		std::list<work_assignment> worker_scheduler::assign_work_gpu_only_strategy(base_writer::logger& log)
-			{
-				// currently we schedule work just by breaking it up between all workers
-				// TODO: in future, this should be replaced by a more intelligent scheduler
+    std::list<work_assignment> worker_scheduler::assign_work_gpu_only_strategy(base_writer::logger& log)
+      {
+        // currently we schedule work just by breaking it up between all workers
+        // TODO: in future, this should be replaced by a more intelligent scheduler
 
-				// build a list of workers requiring assignments
-				// storing a list of iterators is OK here; they would be invalidated by operations on this->worker_data,
-				// but we won't be amending it within this function
-		    std::list< std::vector<worker_scheduling_data>::iterator > workers;
+        // build a list of workers requiring assignments
+        // storing a list of iterators is OK here; they would be invalidated by operations on this->worker_data,
+        // but we won't be amending it within this function
+        std::list< std::vector<worker_scheduling_data>::iterator > workers;
 
-				for(auto t = this->worker_data.begin(); t != this->worker_data.end(); ++t)
-					{
-						if(!t->is_assigned()) workers.push_back(t);
-					}
+        for(auto t = this->worker_data.begin(); t != this->worker_data.end(); ++t)
+          {
+            if(!t->is_assigned()) workers.push_back(t);
+          }
 
-				if(workers.size() != this->unassigned) throw runtime_exception(exception_type::SCHEDULING_ERROR, CPPTRANSPORT_SCHEDULING_UNASSIGNED_MISMATCH);
+        if(workers.size() != this->unassigned) throw runtime_exception(exception_type::SCHEDULING_ERROR, CPPTRANSPORT_SCHEDULING_UNASSIGNED_MISMATCH);
 
-				// divide available work items between all unassigned workers
-				unsigned int items_per_worker = this->queue.size() / workers.size();
-				unsigned int items_left_over  = this->queue.size() % workers.size();
+        // divide available work items between all unassigned workers
+        unsigned int items_per_worker = this->queue.size() / workers.size();
+        unsigned int items_left_over  = this->queue.size() % workers.size();
 
-		    std::list<work_assignment> assignment_list;
+        std::list<work_assignment> assignment_list;
 
-				unsigned int c = 0;
+        unsigned int c = 0;
         auto next_item = this->queue.begin();
 
         for(auto wkr : workers)
-					{
+          {
             // exit if no work left to be assigned
             if(next_item == this->queue.end()) break;
 
-				    std::list<unsigned int> items;
+            std::list<unsigned int> items;
 
-						for(unsigned int i = 0; next_item != this->queue.end() && i < items_per_worker + (c < items_left_over ? 1 : 0); ++i)
-							{
-								items.push_back(*next_item);
-								++next_item;
-							}
+            for(unsigned int i = 0; next_item != this->queue.end() && i < items_per_worker + (c < items_left_over ? 1 : 0); ++i)
+              {
+                items.push_back(*next_item);
+                ++next_item;
+              }
 
-						assignment_list.emplace_back(wkr->get_number(), items);
+            assignment_list.emplace_back(wkr->get_number(), items);
             ++c;
-					}
+          }
 
-				return(assignment_list);
-			}
+        return(assignment_list);
+      }
 
 
     std::list<work_assignment> worker_scheduler::assign_work_mixed_strategy(base_writer::logger& log)
-	    {
-				throw runtime_exception(exception_type::RUNTIME_ERROR, "Mixed CPU/GPU scheduling is not yet implemented");
-	    }
+      {
+        throw runtime_exception(exception_type::RUNTIME_ERROR, "Mixed CPU/GPU scheduling is not yet implemented");
+      }
     
     
   }   // namespace transport

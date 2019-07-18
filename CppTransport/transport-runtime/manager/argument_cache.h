@@ -119,12 +119,11 @@ namespace transport
         
         //! Set commit-failed mode
         void set_commit_failed(bool c)                            { this->commit_failed = c; }
-        
-        
-        //! Added to enable the reverse-beta fnctionality from the command line
-        bool get_reverse_beta_mode() const                        { return(this->reverse_beta_mode); }
 
-        void set_reverse_beta_mode(bool rev)                      { this->reverse_beta_mode = rev; }
+        //! Added to enable the new task scheduler functionality from the command line
+        bool get_new_scheduler() const                          { return(this->new_task_scheduler); }
+
+        void set_new_scheduler(bool rev)                        { this->new_task_scheduler = rev; }
 
 
         // REPOSITORY OPTIONS
@@ -369,8 +368,8 @@ namespace transport
         //! send emails at periodic task events?
         bool mail_periodic;
 	
-		//! Reverse-beta functionality
-		bool reverse_beta_mode; 
+		    //! bool that enables the new three-pf task scheduler that depends on the beta value
+		    bool new_task_scheduler;
 
 
         // enable boost::serialization support, and hence automated packing for transmission over MPI
@@ -404,7 +403,7 @@ namespace transport
             ar & mail_begin;
             ar & mail_end;
             ar & mail_periodic;
-            ar & reverse_beta_mode;
+            ar & new_task_scheduler;
           }
 
 	    };
@@ -433,7 +432,7 @@ namespace transport
         mail_begin(true),
         mail_end(true),
         mail_periodic(true),
-        reverse_beta_mode(false)
+        new_task_scheduler(false)
 	    {
 	    }
 
