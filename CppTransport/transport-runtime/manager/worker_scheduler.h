@@ -337,7 +337,7 @@ namespace transport
         unsigned int get_items_remaining() const { return static_cast<unsigned int>(this->queue.size()); }
         
         //! get number of items processed
-        unsigned int get_items_processsed() const { return this->work_items_completed; }
+        unsigned int get_items_processed() const { return this->work_items_completed; }
         
         //! get number of items in-flight
         unsigned int get_items_inflight() const { return this->work_items_in_flight; }
