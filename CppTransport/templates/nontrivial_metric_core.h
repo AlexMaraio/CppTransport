@@ -288,13 +288,18 @@ namespace transport
         void C(const integration_task<number>* __task, const flattened_tensor<number>& __fields, double __km, double __kn, double __kr, double __N, flattened_tensor<number>& __C) override;
 
         // calculate mass matrix
-        void M(const integration_task<number>* __task, const flattened_tensor<number>& __fields, flattened_tensor<number>& __M) override;
+        void M(const integration_task<number>* __task, const flattened_tensor<number>& __fields,
+               flattened_tensor<number>& __M, massmatrix_type __type = massmatrix_type::include_mixing) override;
 
         // calculate raw mass spectrum
-        void mass_spectrum(const integration_task<number>* __task, const flattened_tensor<number>& __fields, flattened_tensor<number>& __M, flattened_tensor<number>& __E) override;
+        void mass_spectrum(const integration_task<number>* __task, const flattened_tensor<number>& __fields,
+                           bool _norm, flattened_tensor<number>& __M, flattened_tensor<number>& __E,
+                           massmatrix_type __type = massmatrix_type::include_mixing) override;
 
         // calculate the sorted mass spectrum, normalized to H^2 if desired
-        void sorted_mass_spectrum(const integration_task<number>* __task, const flattened_tensor<number>& __fields, bool __norm, flattened_tensor<number>& __M, flattened_tensor<number>& __E) override;
+        void sorted_mass_spectrum(const integration_task<number>* __task, const flattened_tensor<number>& __fields,
+                                  bool __norm, flattened_tensor<number>& __M, flattened_tensor<number>& __E,
+                                  massmatrix_type __type = massmatrix_type::include_mixing) override;
 
         // BACKEND INTERFACE (PARTIAL IMPLEMENTATION -- WE PROVIDE A COMMON BACKGROUND INTEGRATOR)
 
@@ -1659,7 +1664,8 @@ namespace transport
 
 
     template <typename number>
-    void $MODEL<number>::M(const integration_task<number>* __task, const flattened_tensor<number>& __fields, flattened_tensor<number>& __M)
+    void $MODEL<number>::M(const integration_task<number>* __task, const flattened_tensor<number>& __fields,
+                         flattened_tensor<number>& __M, massmatrix_type __type)
       {
         DEFINE_INDEX_TOOLS
         $RESOURCE_RELEASE
@@ -1687,21 +1693,59 @@ namespace transport
 
         // compute M with first index up and second index down
         // this is the arrangement needed to compute the mass spectrum
-        __M[FIELDS_FLATTEN($^a,$_b)] = $M_TENSOR[^a_b];
+
+        switch(__type)
+          {
+            case massmatrix_type::include_mixing:
+              {
+                __M[FIELDS_FLATTEN($^a,$_b)] = $M_TENSOR[^a_b];
+                break;
+              }
+
+            case massmatrix_type::hessian_approx:
+              {
+                __M[FIELDS_FLATTEN($^a,$_b)] = $DDV[^a_b];
+                break;
+              }
+
+            default:
+              assert(false);
+          }
       }
 
 
     template <typename number>
     void $MODEL<number>::sorted_mass_spectrum(const integration_task<number>* __task, const flattened_tensor<number>& __fields,
-                                              bool __norm, flattened_tensor<number>& __M, flattened_tensor<number>& __E)
+                                              bool __norm, flattened_tensor<number>& __M, flattened_tensor<number>& __E,
+                                              massmatrix_type __type)
       {
         // get raw, unsorted mass spectrum in __E
-        this->mass_spectrum(__task, __fields, __M, __E);
+        this->mass_spectrum(__task, __fields, __norm, __M, __E, __type);
 
         // sort mass spectrum into order
         std::sort(__E.begin(), __E.end());
+      }
 
-        // if normalized values requested, divide through by 1/H^2
+
+    template <typename number>
+    void $MODEL<number>::mass_spectrum(const integration_task<number>* __task, const flattened_tensor<number>& __fields,
+                                       bool __norm, flattened_tensor<number>& __M, flattened_tensor<number>& __E,
+                                       massmatrix_type __type)
+      {
+        DEFINE_INDEX_TOOLS
+
+        // write mass matrix (in canonical format) into __M
+        this->M(__task, __fields, __M, __type);
+
+        // copy elements of the mass matrix into an Eigen matrix
+        __mass_matrix($^a,$_b) = __M[FIELDS_FLATTEN($^a,$_b)];
+
+        // extract eigenvalues from this matrix
+        // In general Eigen would give us complex results, which we'd like to avoid. That can be done by
+        // forcing Eigen to use a self-adjoint matrix, which has guaranteed real eigenvalues
+        auto __evalues = __mass_matrix.template selfadjointView<Eigen::Upper>().eigenvalues();
+
+        // if normalized values requested, divide through by H^2
         if(__norm)
           {
             DEFINE_INDEX_TOOLS
@@ -1719,30 +1763,14 @@ namespace transport
 
             const auto __Hsq = $HUBBLE_SQ;
 
-            __E[$^a] = __E[$^a] / __Hsq;
-          };
-      }
-
-
-    template <typename number>
-    void $MODEL<number>::mass_spectrum(const integration_task<number>* __task, const flattened_tensor<number>& __fields,
-                                       flattened_tensor<number>& __M, flattened_tensor<number>& __E)
-      {
-        DEFINE_INDEX_TOOLS
-
-        // write mass matrix (in canonical format) into __M
-        this->M(__task, __fields, __M);
-
-        // copy elements of the mass matrix into an Eigen matrix
-        __mass_matrix($^a,$_b) = __M[FIELDS_FLATTEN($^a,$_b)];
-
-        // extract eigenvalues from this matrix
-        // In general Eigen would give us complex results, which we'd like to avoid. That can be done by
-        // forcing Eigen to use a self-adjoint matrix, which has guaranteed real eigenvalues
-        auto __evalues = __mass_matrix.template selfadjointView<Eigen::Upper>().eigenvalues();
-
-        // copy eigenvalues into output matrix
-        __E[FIELDS_FLATTEN($^a)] = __evalues($^a);
+            // copy eigenvalues into output matrix
+            __E[$^a] = __evalues($^a) / __Hsq;
+          }
+        else
+          {
+            // copy eigenvalues into output matrix
+            __E[FIELDS_FLATTEN($^a)] = __evalues($^a);
+          }
       }
 
 
@@ -1897,7 +1925,7 @@ namespace transport
 
             number largest_evalue(const backg_state<number>& fields)
               {
-                this->mdl->mass_spectrum(this->task, fields, this->flat_M, this->flat_E);
+                this->mdl->mass_spectrum(this->task, fields, false, this->flat_M, this->flat_E);
 
                 // step through eigenvalue vector, extracting largest absolute value
                 number largest_eigenvalue = -std::numeric_limits<number>().max();
